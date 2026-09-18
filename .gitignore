@@ -1,6 +1,10 @@
 node_modules/
-lib/
 coverage/
+# ★ lib/ 不在这里，是刻意的：它必须提交进仓库。
+#   dsh plugin add github:HaydenSmith1121/dsh-connect-trae-plus 走的是 pnpm 的 git 依赖，
+#   而 pnpm 10+ 会以 ERR_PNPM_GIT_DEP_PREPARE_NOT_ALLOWED 拦下 git 依赖的构建脚本 ——
+#   也就是说「装了再从 src/ 构建」这条路走不通。package.json 的 main 指向 lib/index.js，
+#   所以 lib/ 不在仓库里 = 装完缺入口文件。改动 src/ 之后请重新 pnpm run build 并提交 lib/。
 *.log
 .env
 .DS_Store
