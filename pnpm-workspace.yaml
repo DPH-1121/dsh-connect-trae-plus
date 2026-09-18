@@ -1,0 +1,17 @@
+packages:
+  - '.'
+
+# 两个传递依赖带构建脚本。pnpm 10+ 默认拦截它们并以非 0 退出 —— 在开发机上那只是
+# 一句提示，但在 CI 里会让 `pnpm install` 直接失败（实测过一次：新克隆的仓库
+# `pnpm install --frozen-lockfile` 报 ERR_PNPM_IGNORED_BUILDS）。
+#
+# 填 `false` 的含义是「**已知并同意忽略**」，不是「跳过构建」：
+#   · protobufjs 的 postinstall 只打印一句提示；
+#   · @google/genai 的 prepare 对 tarball 安装本就不执行。
+# 两者都不产出本插件运行需要的东西。
+#
+# 不用 `strictDepBuilds: false` 一把梭：那会把将来真正需要编译的依赖（native 模块等）
+# 也静默跳过。逐个白名单保留了严格模式，遇到新的未知构建脚本仍会报出来。
+allowBuilds:
+  '@google/genai': false
+  protobufjs: false

@@ -1,0 +1,56 @@
+name: CI
+
+# 这个仓库是 dsh-connect-trae 加固分支的**源码仓**。
+# 这里是唯一能改插件的地方 —— 插件集合仓库里只有冻结的 tarball 产物。
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: test (${{ matrix.os }})
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        # Windows 必须在矩阵里：本插件的回环 shim、Trae 存储路径与 CLI 身份解析
+        # 都有平台分叉（见 src/paths.ts / src/identity.ts），只在 Linux 上跑会漏掉它们。
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v5
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v6
+        with:
+          version: 11
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Typecheck
+        run: pnpm run typecheck
+
+      - name: Run tests
+        run: pnpm run test
+
+      - name: Build
+        run: pnpm run build
+
+      # tarball 里应当同时带 lib/（产物）与 src/、tests/（便于复核），
+      # 这一条把「files 白名单被改坏」挡在发布之前。
+      - name: Verify package contents
+        run: npm pack --dry-run
