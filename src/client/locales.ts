@@ -5,6 +5,7 @@
  */
 
 export const en = {
+  'row.tabLabel': 'Trae',
   'row.title': 'Trae credits & models (dsh-connect-trae)',
   'row.desc': 'Use Trae models in DSH and see your remaining credits; the domestic and international sides are two independent providers, each with its own account — use both at the same time.',
   'row.expand': 'Expand',
@@ -73,6 +74,7 @@ export const en = {
 export type TraeSettingsKey = keyof typeof en
 
 export const zh: Record<TraeSettingsKey, string> = {
+  'row.tabLabel': 'Trae',
   'row.title': '接入使用Trae积分与模型（dsh-connect-trae）',
   'row.desc': '在 DSH 中使用 Trae 模型并随时查看剩余积分；国内版与国际版是两个独立供应商，各有自己的账号，可同时使用。',
   'row.expand': '展开',

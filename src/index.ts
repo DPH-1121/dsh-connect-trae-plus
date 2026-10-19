@@ -1,7 +1,6 @@
 import type { Context } from '@deepseek-ai/cordis'
 import z from '@deepseek-ai/schemastery'
 import * as dshSettings from '@deepseek-ai/dsh-settings'
-import type { SettingsSectionHooks } from '@deepseek-ai/dsh-settings'
 import type {} from '@deepseek-ai/dsh-attachment'
 import type {} from '@deepseek-ai/dsh-host-webserver'
 import {
@@ -32,6 +31,11 @@ import type { TraeRawDiagnostic } from './raw-diagnostic.ts'
 import { TraeDelegatingUpstreamClient } from './delegating-upstream.ts'
 import { TraeUsageClient } from './usage.ts'
 import { registerTraeUsageRoute } from './web-status.ts'
+
+interface SettingsSectionHooks<C> {
+  setSource(source: () => C): void
+  onChange(): void
+}
 
 export {
   createTraeAdapter,
@@ -648,13 +652,11 @@ export function apply(ctx: Context, config: Config): void {
       // Scan failure: keep defaults; the next card-driven scan converges.
     }
   })()
-  // DSH 0.1.2 replaced the free `installSettingsSection` helper with the
-  // `settings` service's `installSection` method. The Desktop host keeps the
-  // old helper as a legacy shim, but npm installs of 0.1.2 do not — and a
-  // named import of a missing export fails at ESM link time, so the plugin
-  // reads it defensively off the module namespace. Prefer the helper when it
-  // exists (0.1.1 hosts and shimmed 0.1.2 hosts) and fall back to the service
-  // method everywhere else, so one build serves both host generations.
+  // DSH 0.1.2 introduced `settings.installSection`; 0.2.1 moved editable
+  // plugin config to SettingsForms and removed that method. Read both old
+  // hooks defensively so the same build serves both generations: 0.2 reloads
+  // the owning plugin with its saved loader config, so its initial `config`
+  // is already authoritative and no live setSource hook is needed.
   const legacyInstallSettingsSection = (dshSettings as {
     installSettingsSection?: (ctx: Context, ns: string, schema: z<Config>, entry: Config, hooks: SettingsSectionHooks<Config>) => void
   }).installSettingsSection
@@ -662,7 +664,10 @@ export function apply(ctx: Context, config: Config): void {
     legacyInstallSettingsSection(ctx, TRAE_SETTINGS_NS, Config, config, sectionHooks)
   } else {
     ctx.inject(['settings'], settingsCtx => {
-      settingsCtx.settings.installSection(ctx, TRAE_SETTINGS_NS, Config, config, sectionHooks)
+      const installSection = (settingsCtx.settings as {
+        installSection?: (ctx: Context, ns: string, schema: z<Config>, entry: Config, hooks: SettingsSectionHooks<Config>) => void
+      }).installSection
+      installSection?.call(settingsCtx.settings, ctx, TRAE_SETTINGS_NS, Config, config, sectionHooks)
     })
   }
 

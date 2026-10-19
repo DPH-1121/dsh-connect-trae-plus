@@ -9,7 +9,7 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { createElement as h } from 'react'
 import type { PropsRuntime } from '@deepseek-ai/dsh-client-ui-slots'
 import type {} from '@deepseek-ai/dsh-client-ui-settings-plugins/client'
-import { IconChevronDownOutline14 } from '@deepseek-ai/dsh-client-ui-primitives'
+import { IconChevronDownOutlineMedium } from '@deepseek-ai/dsh-client-ui-primitives'
 import {
   nextRegionSlots,
   TRAE_ACCOUNTS_REFRESH_PATH,
@@ -30,13 +30,13 @@ export interface TraeUsageCardInjected {
   settingsScope: {
     getSnapshot(): { status: string; value?: unknown; writable: boolean }
     subscribe(listener: () => void): () => void
-    set(field: string, value: unknown): Promise<void>
+    set(field: string, value: unknown): Promise<boolean>
   }
 }
 
 /** Props delivered by the Plugin configuration item slot. */
 export type TraeUsageCardProps =
-  PropsRuntime<'settings.plugin.item'>
+  PropsRuntime<'settings.plugins.tab'>
   & Partial<TraeUsageCardInjected>
 
 const POLL_INTERVAL_MS = 60_000
@@ -376,7 +376,7 @@ export function TraeUsageCard({ t, settingsScope }: TraeUsageCardProps) {
           aria-hidden="true"
           className={`dsm-plugin-card-chevron${open ? ' dsm-plugin-card-chevron-open' : ''}`}
         >
-          {h(IconChevronDownOutline14, { size: 14 })}
+          {h(IconChevronDownOutlineMedium, { size: 14 })}
         </span>
       </button>
       <div className="dsm-plugin-card-body" hidden={!open}>

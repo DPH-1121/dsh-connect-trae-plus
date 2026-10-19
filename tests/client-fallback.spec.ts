@@ -2,9 +2,8 @@
 import { describe, expect, it, vi } from 'vitest'
 
 /**
- * The client entry degrades a slot-API breaking change (the rc.6→rc.7
- * `id`→`key` rename that caused the red "Failed to load plugins" banner)
- * to a console.error, so the host provider keeps working without a banner.
+ * The client entry degrades a slot-API breaking change to a console.error,
+ * so the host provider keeps working without a "Failed to load plugins" banner.
  *
  * We cannot import the real client entry (it pulls browser-only DSH client
  * packages); instead we replicate the exact try/catch shape from
@@ -27,7 +26,7 @@ describe('client card fallback', () => {
       effect: () => {},
       locale: { register: () => () => {}, bind: () => () => '' },
       slots: {
-        inject: () => { throw new Error('keyed slot "settings.plugin.item" requires options.key') },
+        inject: () => { throw new Error('slot "settings.plugins.tab" is unavailable') },
       },
     }
 
@@ -37,7 +36,7 @@ describe('client card fallback', () => {
         const namespace = 'settings.trae'
         ctx.effect(() => ctx.locale.register(namespace, { zh: {}, en: {} }), 'dsh-connect-trae: settings copy')
         const t = ctx.locale.bind(namespace)
-        ctx.slots.inject('settings.plugin.item', () => {
+        ctx.slots.inject('settings.plugins.tab', () => {
           throw new Error('not reached')
         })
         void t
@@ -52,7 +51,7 @@ describe('client card fallback', () => {
     // The error is visible in the console for developers.
     expect(errors).toHaveLength(1)
     expect(String(errors[0])).toContain('client card failed to load')
-    expect(String(errors[0])).toContain('requires options.key')
+    expect(String(errors[0])).toContain('settings.plugins.tab')
 
     spy.mockRestore()
   })

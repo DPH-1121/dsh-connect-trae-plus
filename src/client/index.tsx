@@ -10,6 +10,7 @@
 // `settingsScope` from `dsh-client-ui-settings`, `locale` from
 // `dsh-client-locale`. All type-only; the bundle requires none of them.
 import type { Context as ClientContext } from '@deepseek-ai/cordis'
+import type { ConfigForm } from '@deepseek-ai/dsh-client-ui-settings/client'
 import type {} from '@deepseek-ai/dsh-client-ui-settings-plugins/client'
 import type {} from '@deepseek-ai/dsh-client-locale/client'
 import type {} from '@deepseek-ai/dsh-client-ui-slots'
@@ -30,7 +31,7 @@ declare module '@deepseek-ai/dsh-client-ui-slots' {
 /** Stable browser-plugin name. */
 export const name = 'dsh-connect-trae-client'
 /** Client services required by the Plugin configuration contribution. */
-export const inject = ['slots', 'locale', 'settingsScope']
+export const inject = ['slots', 'locale', 'configForms']
 
 /**
  * Register card copy and the Trae card under Plugin configuration.
@@ -50,11 +51,13 @@ export function apply(ctx: ClientContext): void {
     const namespace = 'settings.trae'
     ctx.effect(() => ctx.locale.register(namespace, { zh, en }), 'dsh-connect-trae: settings copy')
     const t = ctx.locale.bind(namespace) as TraeUsageCardInjected['t']
-    const settingsScope = ctx.settingsScope.bind({ namespace: 'trae' }) as NonNullable<TraeUsageCardInjected['settingsScope']>
-    ctx.slots.inject('settings.plugin.item', () => ctx.slots.register({
-      name: 'settings.plugin.item',
-      key: 'trae',
-      priority: 30,
+    const settingsScope = ctx.configForms.get('trae') as ConfigForm<unknown>
+    ctx.slots.inject('settings.plugins.tab', () => ctx.slots.register({
+      name: 'settings.plugins.tab',
+      id: 'trae',
+      order: 30,
+      label: () => t('row.tabLabel'),
+      locale: namespace,
       inject: (): TraeUsageCardInjected => ({ t, settingsScope }),
     }, TraeUsageCard))
   } catch (error: unknown) {

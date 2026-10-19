@@ -4,9 +4,8 @@ import { join } from 'node:path'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { Context } from '@deepseek-ai/cordis'
 import LlmRuntime from '@deepseek-ai/dsh-llm'
-import SettingsProvider from '@deepseek-ai/dsh-settings'
-import type { SettingsNamespace } from '@deepseek-ai/dsh-settings'
 import * as Trae from '../src/index.ts'
+import { MemorySettings } from './memory-settings.ts'
 
 /**
  * Activation must not be able to hand DSH an unhandled rejection.
@@ -22,16 +21,6 @@ import * as Trae from '../src/index.ts'
  * These tests assert the *observable* contract that replaces it: activation
  * completes, the plugin is mounted, and no rejection reaches the process.
  */
-
-class MemorySettings extends SettingsProvider {
-  readonly writable = true
-  private storedDocument: Record<string, unknown> = {}
-  protected load(): Promise<Record<string, unknown>> { return Promise.resolve(structuredClone(this.storedDocument)) }
-  protected persist(ns: SettingsNamespace, section: Record<string, unknown>): Promise<void> {
-    this.storedDocument[ns] = structuredClone(section)
-    return Promise.resolve()
-  }
-}
 
 let context: Context | undefined
 afterEach(async () => { await context?.fiber.dispose(); context = undefined })
