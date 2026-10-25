@@ -1,5 +1,16 @@
 # Changelog
 
+## 2.0.4-dsh.3 (2026-10-25) — 复核 dsh 0.2.1-rc.3
+
+- **devDependencies 提到 0.2.1-rc.3**：`@deepseek-ai/*` 从精确的 `0.2.1-rc.2` 改为 `0.2.1-rc.3`（`pnpm-lock.yaml` 同步更新），
+  于是 `tsc -p tsconfig.json && tsc -p tsconfig.client.json` 校验的是最新一批类型。两个项目都无改动通过。
+- **清单通过 rc.3 的插件闸门**（`evaluatePluginCompatibility`；`engines.dsh` 的 0.2.1 窗口本就覆盖 rc.3），
+  并能装入隔离 `DSH_HOME` 的 rc.3 profile：`--dump-config` 组合成功、无兼容性告警。
+- **`vitest run` 38 个测试文件 243 个用例全过**；`tsdown` 重新构建后 `lib/` 无 diff（产物可复现）。
+
+rc.3 相对 rc.2 对本插件用到的接口只有新增（`dsh-app-boot` 的闸门代码逐字未变；`dsh-llm` / `dsh-llm-pi-ai` /
+`dsh-settings` 的导出未变），因此本次没有业务代码改动。
+
 ## 2.0.4-dsh.1 (2026-09-17) — fork of 2.0.4
 
 维护分支：本版由 [`HaydenSmith1121/dsh-plugin-collection`](https://github.com/HaydenSmith1121/dsh-plugin-collection)
